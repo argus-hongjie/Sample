@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context-4.0.xsd
+                           http://www.springframework.org/schema/security
+                           http://www.springframework.org/schema/security/spring-security-4.0.xsd">
+
+    <context:annotation-config/>
+    <context:component-scan base-package="fr.argus.sim.service.api">
+        <context:include-filter type="annotation" expression="javax.ws.rs.Path"/>
+        <context:include-filter type="annotation" expression="javax.ws.rs.ext.Provider"/>
+    </context:component-scan>
+
+    <bean name="http403ForbiddenEntryPoint"
+          class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint"/>
+    <security:http entry-point-ref="http403ForbiddenEntryPoint" />
+
+    <security:global-method-security jsr250-annotations="enabled" pre-post-annotations="enabled">
+        <security:expression-handler ref="expressionHandler"/>
+    </security:global-method-security>
+
+    <bean name="helloPermissionEvaluator" class="fr.argus.sim.conf.HelloPermissionEvaluator"/>
+    <bean id="expressionHandler"
+          class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+        <property name="permissionEvaluator" ref="helloPermissionEvaluator"/>
+    </bean>
+
+    <security:authentication-manager/>
+    <bean class="fr.argus.sim.conf.DefaultRolesPrefixPostProcessor"/>
+</beans>
